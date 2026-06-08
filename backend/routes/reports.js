@@ -1,12 +1,32 @@
 const express = require('express');
 const router = express.Router();
+const db = require('../db');
 
-// Placeholder for reports
-router.get('/salary-ledger', (req, res) => {
-    res.json([
-        { emp_no: 'KSRTC001', name: 'John Doe', base: 5000, allowances: 1200, deductions: 200, net: 6000 },
-        { emp_no: 'KSRTC002', name: 'Jane Smith', base: 5500, allowances: 1300, deductions: 250, net: 6550 }
-    ]);
+// Get Monthly Salary Ledger
+router.get('/salary-ledger', async (req, res) => {
+    const { month, year } = req.query;
+
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                s.slip_id,
+                e.employee_number,
+                CONCAT(e.first_name, ' ', e.last_name) as employee_name,
+                s.basic_pay,
+                s.hra,
+                s.conveyance as transport_allowance,
+                s.net_pay,
+                s.pf_deduction as deductions
+            FROM employee_salary_slips s
+            JOIN employees e ON s.emp_id = e.emp_id
+            JOIN payroll_runs r ON s.run_id = r.run_id
+            WHERE r.payroll_month = ? AND r.payroll_year = ?
+        `, [month, year]);
+
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 module.exports = router;

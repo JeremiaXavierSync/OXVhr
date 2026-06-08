@@ -1,166 +1,176 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { mastersApi } from '../services/api';
 
 const EmployeeRegistry = () => {
-    const [activeTab, setActiveTab] = useState('GENERAL');
+    const [activeTab, setActiveTab] = useState('LIST');
+    const [employees, setEmployees] = useState([]);
+    const [loading, setLoading] = useState(false);
+    
+    // Form State
+    const [formData, setFormData] = useState({
+        employee_number: '',
+        first_name: '',
+        last_name: '',
+        gender: 'MALE',
+        dob: '',
+        joining_date: '',
+        dept_id: '',
+        designation_id: '',
+        category_id: ''
+    });
 
-    const renderTabContent = () => {
-        switch (activeTab) {
-            case 'GENERAL':
-                return (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        <div>
-                            <div className="form-group"><label>Employee No:</label><input type="text" className="form-control" style={{ width: '150px' }} /></div>
-                            <div className="form-group"><label>First Name:</label><input type="text" className="form-control" style={{ width: '250px' }} /></div>
-                            <div className="form-group"><label>Middle Name:</label><input type="text" className="form-control" style={{ width: '250px' }} /></div>
-                            <div className="form-group"><label>Last Name:</label><input type="text" className="form-control" style={{ width: '250px' }} /></div>
-                            <div className="form-group"><label>Display Name:</label><input type="text" className="form-control" style={{ width: '250px' }} /></div>
-                            <div className="form-group">
-                                <label>Gender:</label>
-                                <select className="form-control" style={{ width: '100px' }}>
-                                    <option>MALE</option><option>FEMALE</option><option>OTHER</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <div className="form-group"><label>DOB:</label><input type="date" className="form-control" style={{ width: '150px' }} /></div>
-                            <div className="form-group"><label>Joining Date:</label><input type="date" className="form-control" style={{ width: '150px' }} /></div>
-                            <div className="form-group"><label>Employment Type:</label>
-                                <select className="form-control" style={{ width: '150px' }}>
-                                    <option>FULL_TIME</option><option>PART_TIME</option><option>CONTRACT</option>
-                                </select>
-                            </div>
-                            <div className="form-group"><label>Department:</label>
-                                <select className="form-control" style={{ width: '200px' }}>
-                                    <option>OPERATIONS</option><option>ACCOUNTS</option>
-                                </select>
-                            </div>
-                            <div className="form-group"><label>Designation:</label>
-                                <select className="form-control" style={{ width: '200px' }}>
-                                    <option>DRIVER</option><option>CONDUCTOR</option><option>CLERK</option>
-                                </select>
-                            </div>
-                            <div className="form-group"><label>Status:</label>
-                                <select className="form-control" style={{ width: '120px' }}>
-                                    <option>ACTIVE</option><option>TRAINING</option><option>ON_LEAVE</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                );
-            case 'PERSONAL':
-                return (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        <div>
-                            <div className="form-group"><label>Marital Status:</label>
-                                <select className="form-control"><option>SINGLE</option><option>MARRIED</option></select>
-                            </div>
-                            <div className="form-group"><label>Nationality:</label><input type="text" className="form-control" /></div>
-                            <div className="form-group"><label>Religion:</label><input type="text" className="form-control" /></div>
-                            <div className="form-group"><label>Blood Group:</label><input type="text" className="form-control" style={{ width: '60px' }} /></div>
-                        </div>
-                        <div>
-                            <div className="form-group"><label>National ID Type:</label><input type="text" className="form-control" placeholder="Aadhar/SSN" /></div>
-                            <div className="form-group"><label>ID Number:</label><input type="text" className="form-control" /></div>
-                            <div className="form-group"><label>Passport No:</label><input type="text" className="form-control" /></div>
-                            <div className="form-group"><label>Passport Expiry:</label><input type="date" className="form-control" /></div>
-                        </div>
-                    </div>
-                );
-            case 'CONTACT':
-                return (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        <div>
-                            <h4 style={{ fontSize: '11px', borderBottom: '1px solid #CCC', marginBottom: '10px' }}>COMMUNICATION</h4>
-                            <div className="form-group"><label>Work Email:</label><input type="email" className="form-control" style={{ width: '250px' }} /></div>
-                            <div className="form-group"><label>Personal Email:</label><input type="email" className="form-control" style={{ width: '250px' }} /></div>
-                            <div className="form-group"><label>Mobile (Pri):</label><input type="text" className="form-control" /></div>
-                            <div className="form-group"><label>Mobile (Sec):</label><input type="text" className="form-control" /></div>
-                        </div>
-                        <div>
-                            <h4 style={{ fontSize: '11px', borderBottom: '1px solid #CCC', marginBottom: '10px' }}>EMERGENCY CONTACT</h4>
-                            <div className="form-group"><label>Contact Name:</label><input type="text" className="form-control" /></div>
-                            <div className="form-group"><label>Relationship:</label><input type="text" className="form-control" /></div>
-                            <div className="form-group"><label>Phone:</label><input type="text" className="form-control" /></div>
-                        </div>
-                    </div>
-                );
-            case 'BANK/STATUTORY':
-                return (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        <div>
-                            <h4 style={{ fontSize: '11px', borderBottom: '1px solid #CCC', marginBottom: '10px' }}>BANK DETAILS</h4>
-                            <div className="form-group"><label>Bank Name:</label><input type="text" className="form-control" /></div>
-                            <div className="form-group"><label>Branch:</label><input type="text" className="form-control" /></div>
-                            <div className="form-group"><label>Account No:</label><input type="text" className="form-control" /></div>
-                            <div className="form-group"><label>IFSC/Swift:</label><input type="text" className="form-control" /></div>
-                        </div>
-                        <div>
-                            <h4 style={{ fontSize: '11px', borderBottom: '1px solid #CCC', marginBottom: '10px' }}>STATUTORY IDS</h4>
-                            <div className="form-group"><label>PAN Number:</label><input type="text" className="form-control" /></div>
-                            <div className="form-group"><label>PF Number:</label><input type="text" className="form-control" /></div>
-                            <div className="form-group"><label>ESI Number:</label><input type="text" className="form-control" /></div>
-                        </div>
-                    </div>
-                );
-            case 'ACADEMIC/EXP':
-                return (
-                    <div>
-                         <h4 style={{ fontSize: '11px', borderBottom: '1px solid #CCC', marginBottom: '5px' }}>EDUCATION HISTORY</h4>
-                         <table className="data-grid" style={{ marginBottom: '15px' }}>
-                            <thead><tr><th>DEGREE</th><th>INSTITUTION</th><th>YEAR</th><th>% / CGPA</th></tr></thead>
-                            <tbody>
-                                <tr><td><input type="text" className="form-control" style={{border:0}} /></td><td><input type="text" className="form-control" style={{border:0}} /></td><td><input type="text" className="form-control" style={{border:0}} /></td><td><input type="text" className="form-control" style={{border:0}} /></td></tr>
-                            </tbody>
-                         </table>
-                         <h4 style={{ fontSize: '11px', borderBottom: '1px solid #CCC', marginBottom: '5px' }}>PREVIOUS EXPERIENCE</h4>
-                         <table className="data-grid">
-                            <thead><tr><th>COMPANY</th><th>DESIGNATION</th><th>FROM</th><th>TO</th></tr></thead>
-                            <tbody>
-                                <tr><td><input type="text" className="form-control" style={{border:0}} /></td><td><input type="text" className="form-control" style={{border:0}} /></td><td><input type="date" className="form-control" style={{border:0}} /></td><td><input type="date" className="form-control" style={{border:0}} /></td></tr>
-                            </tbody>
-                         </table>
-                    </div>
-                )
-            default: return null;
+    // Masters Data
+    const [masters, setMasters] = useState({
+        departments: [],
+        designations: [],
+        categories: []
+    });
+
+    useEffect(() => {
+        fetchEmployees();
+        fetchMasters();
+    }, []);
+
+    const fetchEmployees = async () => {
+        setLoading(true);
+        try {
+            const res = await mastersApi.getEmployees();
+            setEmployees(res.data);
+        } catch (err) {
+            console.error('Failed to fetch employees', err);
+        } finally {
+            setLoading(false);
         }
     };
+
+    const fetchMasters = async () => {
+        try {
+            const [depts, desigs, cats] = await Promise.all([
+                mastersApi.getDepartments(),
+                mastersApi.getDesignations(),
+                mastersApi.getCategories()
+            ]);
+            setMasters({
+                departments: depts.data,
+                designations: desigs.data,
+                categories: cats.data
+            });
+        } catch (err) {
+            console.error('Failed to fetch masters', err);
+        }
+    };
+
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await mastersApi.createEmployee(formData);
+            alert('Employee created successfully!');
+            setActiveTab('LIST');
+            fetchEmployees();
+        } catch (err) {
+            alert('Error creating employee: ' + err.message);
+        }
+    };
+
+    const renderList = () => (
+        <div>
+            <div style={{ marginBottom: '10px' }}>
+                <button className="btn-legacy" onClick={() => setActiveTab('CREATE')}>+ ADD NEW EMPLOYEE</button>
+            </div>
+            <table className="data-grid">
+                <thead>
+                    <tr>
+                        <th>EMP NO</th>
+                        <th>NAME</th>
+                        <th>DEPARTMENT</th>
+                        <th>DESIGNATION</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {employees.map((emp) => (
+                        <tr key={emp.emp_id}>
+                            <td>{emp.employee_number}</td>
+                            <td>{`${emp.first_name} ${emp.last_name}`}</td>
+                            <td>{emp.dept_name}</td>
+                            <td>{emp.designation_name}</td>
+                            <td>{emp.status}</td>
+                        </tr>
+                    ))}
+                    {employees.length === 0 && !loading && <tr><td colSpan="5" style={{ textAlign: 'center' }}>No employees found.</td></tr>}
+                </tbody>
+            </table>
+        </div>
+    );
+
+    const renderForm = () => (
+        <form onSubmit={handleSubmit}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div>
+                    <div className="form-group">
+                        <label>Employee No:</label>
+                        <input name="employee_number" type="text" className="form-control" onChange={handleInputChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label>First Name:</label>
+                        <input name="first_name" type="text" className="form-control" onChange={handleInputChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label>Last Name:</label>
+                        <input name="last_name" type="text" className="form-control" onChange={handleInputChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label>Gender:</label>
+                        <select name="gender" className="form-control" onChange={handleInputChange}>
+                            <option value="MALE">MALE</option>
+                            <option value="FEMALE">FEMALE</option>
+                            <option value="OTHER">OTHER</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <div className="form-group"><label>DOB:</label><input name="dob" type="date" className="form-control" onChange={handleInputChange} required /></div>
+                    <div className="form-group"><label>Joining Date:</label><input name="joining_date" type="date" className="form-control" onChange={handleInputChange} required /></div>
+                    <div className="form-group">
+                        <label>Department:</label>
+                        <select name="dept_id" className="form-control" onChange={handleInputChange} required>
+                            <option value="">Select Department</option>
+                            {masters.departments.map(d => <option key={d.dept_id} value={d.dept_id}>{d.dept_name}</option>)}
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label>Designation:</label>
+                        <select name="designation_id" className="form-control" onChange={handleInputChange} required>
+                            <option value="">Select Designation</option>
+                            {masters.designations.map(d => <option key={d.designation_id} value={d.designation_id}>{d.designation_name}</option>)}
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label>Category:</label>
+                        <select name="category_id" className="form-control" onChange={handleInputChange} required>
+                            <option value="">Select Category</option>
+                            {masters.categories.map(c => <option key={c.category_id} value={c.category_id}>{c.category_name}</option>)}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                <button type="submit" className="btn-legacy">SAVE EMPLOYEE</button>
+                <button type="button" className="btn-legacy" onClick={() => setActiveTab('LIST')}>CANCEL</button>
+            </div>
+        </form>
+    );
 
     return (
         <div className="view-container">
             <h3 style={{ marginBottom: '10px', borderBottom: '1px solid #888', paddingBottom: '5px' }}>
-                HRM001 - COMPREHENSIVE EMPLOYEE MASTER
+                HRP001 - EMPLOYEE MASTER REGISTRY
             </h3>
-
-            <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '10px' }}>
-                {['GENERAL', 'PERSONAL', 'CONTACT', 'BANK/STATUTORY', 'ACADEMIC/EXP'].map(tab => (
-                    <div 
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        style={{
-                            padding: '4px 12px',
-                            cursor: 'pointer',
-                            fontSize: '11px',
-                            fontWeight: 'bold',
-                            border: '1px solid var(--border-color)',
-                            borderBottom: activeTab === tab ? 'none' : '1px solid var(--border-color)',
-                            background: activeTab === tab ? '#FFF' : '#EEE',
-                            marginRight: '2px'
-                        }}
-                    >
-                        {tab}
-                    </div>
-                ))}
-            </div>
-            
-            <div style={{ minHeight: '300px', border: '1px solid #AAA', padding: '15px', background: '#FFF' }}>
-                {renderTabContent()}
-            </div>
-
-            <div style={{ marginTop: '20px', borderTop: '1px solid #AAA', paddingTop: '10px' }}>
-                <button className="btn-legacy btn-primary">SAVE RECORD (F10)</button>
-                <button className="btn-legacy" style={{ marginLeft: '5px' }}>CANCEL (ESC)</button>
-                <button className="btn-legacy" style={{ marginLeft: '5px' }}>PRINT PROFILE</button>
-            </div>
+            {activeTab === 'LIST' ? renderList() : renderForm()}
         </div>
     );
 };
