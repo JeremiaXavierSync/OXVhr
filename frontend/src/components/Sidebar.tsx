@@ -1,39 +1,59 @@
 interface SidebarProps {
     setView: (view: string) => void;
+    currentView: string;
 }
 
-const Sidebar = ({ setView }: SidebarProps) => {
+const Sidebar = ({ setView, currentView }: SidebarProps) => {
+    const navItems = [
+        { section: 'DASHBOARDS', items: [
+            { id: 'WorkDesk', label: 'Employee Work Desk' },
+            { id: 'Summary', label: 'Summary Status' }
+        ]},
+        { section: 'MASTERS', items: [
+            { id: 'EmployeeRegistry', label: 'Employee Registry' },
+            { id: 'SalaryMaster', label: 'Salary Master' },
+            { id: 'CostCenters', label: 'Cost Centers' }
+        ]},
+        { section: 'TASKS', items: [
+            { id: 'AttendanceImport', label: 'Attendance Import' },
+            { id: 'LeaveProcessing', label: 'Leave Processing' },
+            { id: 'PayrollExecution', label: 'Payroll Execution' }
+        ]},
+        { section: 'REPORTS', items: [
+            { id: 'PayrollLedger', label: 'Payroll Ledger' },
+            { id: 'AttendanceRegister', label: 'Attendance Register' }
+        ]}
+    ];
+
     return (
         <div className="sidebar">
             <div className="sidebar-search">
                 <input type="text" placeholder="Search Menu (Alt+S)..." />
             </div>
             
-            <div className="nav-section">
-                <div className="nav-header">DASHBOARDS</div>
-                <div className="nav-item">Employee Work Desk</div>
-                <div className="nav-item">Summary Status</div>
-            </div>
-
-            <div className="nav-section">
-                <div className="nav-header">MASTERS</div>
-                <div className="nav-item" onClick={() => setView('EmployeeRegistry')}>Employee Registry</div>
-                <div className="nav-item">Salary Master</div>
-                <div className="nav-item">Cost Centers</div>
-            </div>
-
-            <div className="nav-section">
-                <div className="nav-header">TASKS</div>
-                <div className="nav-item">Attendance Import</div>
-                <div className="nav-item">Leave Processing</div>
-                <div className="nav-item">Payroll Execution</div>
-            </div>
-
-            <div className="nav-section">
-                <div className="nav-header">REPORTS</div>
-                <div className="nav-item" onClick={() => setView('PayrollLedger')}>Payroll Ledger</div>
-                <div className="nav-item">Attendance Register</div>
-            </div>
+            {navItems.map(section => (
+                <div key={section.section} className="nav-section">
+                    <div className="nav-header">{section.section}</div>
+                    {section.items.map(item => (
+                        <div 
+                            key={item.id} 
+                            className={`nav-item ${currentView === item.id ? 'active' : ''}`}
+                            onClick={() => {
+                                console.log(`Navigating to: ${item.id}`);
+                                setView(item.id);
+                            }}
+                            style={{
+                                backgroundColor: currentView === item.id ? '#FFFFAA' : 'transparent',
+                                fontWeight: currentView === item.id ? 'bold' : 'normal',
+                                borderLeft: currentView === item.id ? '3px solid #003366' : 'none',
+                                paddingLeft: currentView === item.id ? '17px' : '20px'
+                            }}
+                        >
+                            {item.label}
+                        </div>
+                    ))}
+                </div>
+            ))}
         </div>
     );
 };
