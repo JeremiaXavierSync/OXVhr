@@ -1,0 +1,37 @@
+@startuml HR_01_UseCaseDiagram
+title KSRTC HR & Payroll System - Business Overview
+
+ left to right direction
+ skinparam packageStyle rectangle
+
+ actor "System Admin / HR" as Admin
+ actor "Manager / Approver" as Manager
+ actor "Employee / Staff" as Emp
+  
+   rectangle "KSRTC HR & Payroll System" {
+  
+     package "1. MASTER (Setup)" {
+       usecase "Manage Employees & Cost Centers" as UC_M1
+       usecase "Configure Salary Grades" as UC_M2
+     }
+  
+     package "2. TASKS (Operations)" {
+       usecase "Manage Attendance & Leave" as UC_T1
+       usecase "Execute Payroll Engine" as UC_T2
+     }
+  
+     package "3. REPORTS (Monitoring)" {
+       usecase "View Salary Ledger & Payslips" as UC_R
+     }
+   }
+
+' Interactions
+Admin --> UC_M1 : Setup Master Data
+Admin --> UC_M2 : Configure Financials
+Manager --> UC_T1 : Approve Leaves
+Emp --> UC_T1 : Mark Attendance / Submit Leave
+Admin --> UC_T2 : Process Monthly Payroll
+Emp --> UC_R : View Own Payslips
+Admin --> UC_R : Audit Payroll
+Manager --> UC_R : Monitor Team
+@enduml

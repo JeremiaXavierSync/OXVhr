@@ -1,0 +1,38 @@
+@startuml HR_02_PayrollWorkflow
+title KSRTC - Payroll Execution Process
+
+skinparam backgroundColor #FFFFFF
+skinparam activity {
+  BackgroundColor #E3F2FD
+  BorderColor #003399
+  ArrowColor #003399
+  StartColor #003399
+  EndColor #003399
+  DiamondBackgroundColor #FFFDE7
+  DiamondBorderColor #FBC02D
+}
+
+start
+:HR Administrator initiates Payroll Run;
+:System validates if month/year already processed;
+
+if (Action?) then (Already Processed)
+  :System displays **ERROR** message;
+  stop
+else (New Run)
+  :System creates Payroll Run as **DRAFT**;
+  :System fetches all **ACTIVE** Employees;
+  
+  while (More employees?) is (yes)
+    :Calculate Pro-rated Earnings (Base, HRA);
+    :Calculate Deductions (PF, ESI);
+    :Generate Salary Slip;
+  endwhile (no)
+  
+  :System updates Payroll Run status to **PROCESSED**;
+  :System commits transaction;
+  :HR Administrator views **SUCCESS** Summary;
+endif
+
+stop
+@enduml

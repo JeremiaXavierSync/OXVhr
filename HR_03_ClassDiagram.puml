@@ -1,0 +1,47 @@
+@startuml HR_03_ClassDiagram
+title KSRTC HR & Payroll — Core Data Model
+
+hide circle
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #F3F3F3
+  BorderColor #333333
+  HeaderBackgroundColor #333333
+  HeaderFontColor #FFFFFF
+}
+
+class "**Employee**" as Emp {
+  Employee Number
+  Name / Status
+  Date of Birth
+  Joining Date
+}
+
+class "**Department**" as Dept {
+  Dept Name
+  Cost Center Code
+}
+
+class "**Salary Master**" as Sal {
+  Grade Name
+  Base Salary
+  Allowances
+}
+
+class "**Leave / Attendance**" as Task {
+  Log Date
+  Clock In / Clock Out
+  Leave Status
+}
+
+class "**Salary Slip**" as Slip {
+  Payroll Run ID
+  Net Pay
+  PF / ESI Deductions
+}
+
+Emp "many" -- "1" Dept : Assigned To
+Emp "many" -- "1" Sal : Graded Under
+Emp "1" -- "many" Task : Records
+Emp "1" -- "many" Slip : Generates
+@enduml
