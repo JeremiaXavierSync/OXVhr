@@ -1,4 +1,5 @@
 @startuml HR_03_ClassDiagram
+!pragma layout smetana
 title KSRTC HR & Payroll — Core Data Model
 
 hide circle

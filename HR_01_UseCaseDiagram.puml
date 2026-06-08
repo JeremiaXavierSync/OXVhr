@@ -1,4 +1,5 @@
 @startuml HR_01_UseCaseDiagram
+!pragma layout smetana
 title KSRTC HR & Payroll System - Business Overview
 
  left to right direction
