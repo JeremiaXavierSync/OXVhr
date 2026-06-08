@@ -11,27 +11,47 @@ title KSRTC HR & Payroll System - Business Overview
    rectangle "KSRTC HR & Payroll System" {
   
      package "1. MASTER (Setup)" {
-       usecase "Manage Employees & Cost Centers" as UC_M1
-       usecase "Configure Salary Grades" as UC_M2
+       usecase "Register Staff" as UC_RegStaff
+       usecase "Update Details" as UC_UpdateEmp
+       usecase "Manage Status" as UC_ManageStatus
+       usecase "Manage Cost Centers" as UC_ManageCC
+       usecase "Configure Salary Master" as UC_ConfigSal
      }
   
      package "2. TASKS (Operations)" {
-       usecase "Manage Attendance & Leave" as UC_T1
-       usecase "Execute Payroll Engine" as UC_T2
+       usecase "Manual Attendance Import" as UC_ManualAtt
+       usecase "Mark Daily Attendance" as UC_MarkAtt
+       usecase "Submit Leave Request" as UC_SubmitLeave
+       usecase "Approve/Reject Leave" as UC_ApproveLeave
+       usecase "Execute Payroll Engine" as UC_ExecPayroll
      }
   
      package "3. REPORTS (Monitoring)" {
-       usecase "View Salary Ledger & Payslips" as UC_R
+       usecase "Generate Reports\n(Ledger/Register)" as UC_GenReports
+       usecase "View Personal Payslips" as UC_ViewPayslip
+       usecase "View Leave Balance" as UC_ViewLeaveBal
      }
    }
 
 ' Interactions
-Admin --> UC_M1 : Setup Master Data
-Admin --> UC_M2 : Configure Financials
-Manager --> UC_T1 : Approve Leaves
-Emp --> UC_T1 : Mark Attendance / Submit Leave
-Admin --> UC_T2 : Process Monthly Payroll
-Emp --> UC_R : View Own Payslips
-Admin --> UC_R : Audit Payroll
-Manager --> UC_R : Monitor Team
+Admin --> UC_RegStaff
+Admin --> UC_UpdateEmp
+Admin --> UC_ManageStatus
+Admin --> UC_ManageCC
+Admin --> UC_ConfigSal
+Admin --> UC_ExecPayroll
+Admin --> UC_GenReports
+Admin --> UC_ManualAtt
+
+Manager --> UC_ApproveLeave
+Manager --> UC_GenReports
+
+Emp --> UC_MarkAtt
+Emp --> UC_SubmitLeave
+Emp --> UC_ViewPayslip
+Emp --> UC_ViewLeaveBal
+
+' Dependencies
+UC_ExecPayroll ..> UC_MarkAtt : <<include>>
+
 @enduml
