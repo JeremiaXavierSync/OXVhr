@@ -29,4 +29,21 @@ router.get('/salary-ledger', async (req, res) => {
     }
 });
 
+// Get slips for a specific employee
+router.get('/employee-slips/:emp_id', async (req, res) => {
+    const { emp_id } = req.params;
+    try {
+        const [rows] = await db.query(`
+            SELECT s.*, r.payroll_month, r.payroll_year
+            FROM employee_salary_slips s
+            JOIN payroll_runs r ON s.run_id = r.run_id
+            WHERE s.emp_id = ?
+            ORDER BY r.payroll_year DESC, r.payroll_month DESC
+        `, [emp_id]);
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;

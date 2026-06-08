@@ -26,6 +26,7 @@ export const tasksApi = {
 
 export const reportsApi = {
     getSalaryLedger: (month: number, year: number) => api.get('/reports/salary-ledger', { params: { month, year } }),
+    getEmployeeSlips: (empId: number) => api.get(`/reports/employee-slips/${empId}`),
 };
 
 export default api;
