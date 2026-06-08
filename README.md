@@ -25,18 +25,39 @@ useCaseDiagram
     actor "Employee" as Emp
 
     package "OXVhr Module" {
-        usecase "Manage Employee Lifecycle" as UC1
-        usecase "Execute Monthly Payroll" as UC3
-        usecase "Audit Attendance Logs" as UC4
-        usecase "Approve Leave Requests" as UC5
-        usecase "View Personal Payslips" as UC7
+        package "Employee Management" {
+            usecase "Register Staff" as UC1
+            usecase "Update Details" as UC2
+            usecase "Manage Status" as UC3
+        }
+        package "Financial Engine" {
+            usecase "Configure Salary" as UC4
+            usecase "Execute Payroll" as UC5
+            usecase "Generate Reports" as UC6
+        }
+        package "Attendance & Leave" {
+            usecase "Mark Attendance" as UC7
+            usecase "Submit Leave" as UC8
+            usecase "Approve/Reject Leave" as UC9
+        }
+        usecase "View Payslips" as UC10
     }
 
     Admin --> UC1
+    Admin --> UC2
     Admin --> UC3
-    Manager --> UC4
-    Manager --> UC5
+    Admin --> UC4
+    Admin --> UC5
+    Admin --> UC6
+    
+    Manager --> UC9
+    Manager --> UC6
+
     Emp --> UC7
+    Emp --> UC8
+    Emp --> UC10
+
+    UC5 ..> UC7 : <<include>>
 ```
 
 ### 2. Sequence Diagram: Monthly Payroll Processing

@@ -43,6 +43,33 @@ router.post('/employees', async (req, res) => {
     }
 });
 
+// PUT update employee details
+router.put('/employees/:id', async (req, res) => {
+    const { id } = req.params;
+    const { first_name, last_name, dept_id, designation_id, category_id } = req.body;
+    try {
+        await db.query(
+            'UPDATE employees SET first_name = ?, last_name = ?, dept_id = ?, designation_id = ?, category_id = ? WHERE emp_id = ?',
+            [first_name, last_name, dept_id, designation_id, category_id, id]
+        );
+        res.json({ message: 'Employee updated successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// PATCH manage status
+router.patch('/employees/:id/status', async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    try {
+        await db.query('UPDATE employees SET status = ? WHERE emp_id = ?', [status, id]);
+        res.json({ message: `Status updated to ${status}` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // --- DEPARTMENTS ---
 
 router.get('/departments', async (req, res) => {

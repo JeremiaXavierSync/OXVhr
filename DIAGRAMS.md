@@ -2,6 +2,8 @@
 
 This document provides step-by-step instructions for drawing the architectural and behavioral diagrams for the OXVhr system. Use these guidelines to create diagrams in any modeling tool (Lucidchart, Draw.io, Visio, etc.).
 
+> **Tip**: A detailed Use Case diagram is available in the repository as `DIAGRAMS.drawio`. You can open this file directly in [diagrams.net](https://app.diagrams.net/).
+
 ---
 
 ## 1. Use Case Diagram
@@ -13,9 +15,18 @@ This document provides step-by-step instructions for drawing the architectural a
 - **Employee**: The end-user who interacts with personal data and attendance.
 
 ### Core Processes (Use Cases)
-- **Employee Management**: Registering new staff, updating personal/bank details, and managing employment status (Active/Resigned/Terminated).
-- **Financial Engine**: Configuring salary master data, executing monthly payroll runs, and generating consolidated monthly reports.
-- **Attendance & Leave**: Marking daily attendance, submitting leave requests, and approving/rejecting leave applications.
+- **Employee Management**: 
+    - **Register Staff**: Adding new employees.
+    - **Update Details**: Modifying existing profile data.
+    - **Manage Status**: Handling transitions like 'Active', 'On Leave', or 'Terminated'.
+- **Financial Engine**: 
+    - **Configure Salary**: Setting up grades and base pay.
+    - **Execute Payroll**: Running the pro-rated calculation engine.
+    - **Generate Reports**: Producing audit-ready salary ledgers.
+- **Attendance & Leave**: 
+    - **Mark Attendance**: Daily clock-in/out tracking (supports manual/biometric).
+    - **Submit Leave**: Employee requests for time off.
+    - **Approve/Reject Leave**: Managerial workflow for leave registry.
 - **Self-Service**: Viewing and downloading monthly payslips.
 
 ### Drawing Instructions
@@ -24,7 +35,7 @@ This document provides step-by-step instructions for drawing the architectural a
 3. Draw lines connecting the **HR Administrator** to all Financial and Employee Management processes.
 4. Connect the **Manager** to Leave Approvals and Reports.
 5. Connect the **Employee** to Attendance Marking, Leave Submission, and Payslip Viewing.
-6. **Relationship Note**: Link the "Execute Payroll" use case to "Attendance Logs" with an "Include" relationship, as payroll requires attendance data.
+6. **Relationship Note**: Link the "Execute Payroll" use case to "Mark Attendance" with an "Include" relationship, as payroll requires attendance data.
 
 ---
 

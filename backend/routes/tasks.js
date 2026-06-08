@@ -69,4 +69,53 @@ router.post('/process-payroll', async (req, res) => {
     }
 });
 
+// --- ATTENDANCE ---
+
+// Mark daily attendance
+router.post('/attendance/mark', async (req, res) => {
+    const { emp_id, log_date, status, clock_in, clock_out } = req.body;
+    try {
+        const [result] = await db.query(
+            `INSERT INTO attendance_logs (emp_id, log_date, status, clock_in, clock_out) 
+             VALUES (?, ?, ?, ?, ?) 
+             ON DUPLICATE KEY UPDATE status = VALUES(status), clock_in = VALUES(clock_in), clock_out = VALUES(clock_out)`,
+            [emp_id, log_date || new Date(), status || 'PRESENT', clock_in, clock_out]
+        );
+        res.json({ message: 'Attendance marked successfully', id: result.insertId });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// --- LEAVE MANAGEMENT ---
+
+// Submit leave request
+router.post('/leave/request', async (req, res) => {
+    const { emp_id, leave_type_id, start_date, end_date, reason } = req.body;
+    try {
+        const [result] = await db.query(
+            'INSERT INTO leave_registry (emp_id, leave_type_id, start_date, end_date, reason, status) VALUES (?, ?, ?, ?, ?, ?)',
+            [emp_id, leave_type_id, start_date, end_date, reason, 'PENDING']
+        );
+        res.json({ message: 'Leave request submitted', id: result.insertId });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Approve/Reject leave
+router.patch('/leave/status/:id', async (req, res) => {
+    const { status, approved_by } = req.body; // status: 'APPROVED' or 'REJECTED'
+    const { id } = req.params;
+    try {
+        await db.query(
+            'UPDATE leave_registry SET status = ?, approved_by = ? WHERE leave_id = ?',
+            [status, approved_by, id]
+        );
+        res.json({ message: `Leave ${status.toLowerCase()} successfully` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
