@@ -71,6 +71,23 @@ router.post('/process-payroll', async (req, res) => {
 
 // --- ATTENDANCE ---
 
+// Get attendance logs
+router.get('/attendance/logs', async (req, res) => {
+    const { month, year } = req.query;
+    try {
+        const [rows] = await db.query(
+            `SELECT a.*, e.employee_number, CONCAT(e.first_name, ' ', e.last_name) as employee_name
+             FROM attendance_logs a
+             JOIN employees e ON a.emp_id = e.emp_id
+             WHERE MONTH(a.log_date) = ? AND YEAR(a.log_date) = ?`,
+            [month, year]
+        );
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Mark daily attendance
 router.post('/attendance/mark', async (req, res) => {
     const { emp_id, log_date, status, clock_in, clock_out } = req.body;
@@ -88,6 +105,32 @@ router.post('/attendance/mark', async (req, res) => {
 });
 
 // --- LEAVE MANAGEMENT ---
+
+// Get all leave requests
+router.get('/leave/requests', async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT l.*, e.employee_number, CONCAT(e.first_name, ' ', e.last_name) as employee_name, lt.leave_type_name
+            FROM leave_registry l
+            JOIN employees e ON l.emp_id = e.emp_id
+            JOIN leave_types lt ON l.leave_type_id = lt.leave_type_id
+            ORDER BY l.leave_id DESC
+        `);
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get leave types
+router.get('/leave/types', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM leave_types');
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // Submit leave request
 router.post('/leave/request', async (req, res) => {
