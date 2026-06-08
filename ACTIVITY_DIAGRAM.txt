@@ -1,0 +1,43 @@
+@startuml OXVhr_Activity_Diagram_Payroll
+|HR Administrator|
+start
+:Initiate Payroll Run for Month/Year;
+
+|System Backend|
+:Validate if already processed;
+if (Is already processed?) then (yes)
+  :Return Error "Already Processed";
+  |HR Administrator|
+  :Display Error Message;
+  stop
+else (no)
+  |System Backend|
+  :Begin Database Transaction;
+  :Create Payroll Run Record (Status=DRAFT);
+  :Fetch ACTIVE Employees List;
+  
+  while (More employees to process?) is (yes)
+    :Get Employee Salary Grade;
+    :Fetch Monthly Attendance Logs;
+    :Calculate Total Present Days;
+    
+    fork
+      :Calculate Pro-rated Earnings
+      (Base, HRA, Allowances);
+    fork again
+      :Calculate Statutory Deductions
+      (PF, ESI, Taxes);
+    end fork
+    
+    :Calculate Net Pay;
+    :Insert Salary Slip Record;
+  endwhile (no)
+  
+  :Update Payroll Run (Status=PROCESSED);
+  :Commit Transaction;
+  
+  |HR Administrator|
+  :Display Success Message & Summary Grid;
+  stop
+endif
+@enduml
