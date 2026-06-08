@@ -1,295 +1,107 @@
-KSRTC HR & Payroll Module - PlantUML Diagrams
+# OXVhr UML Diagram Design Instructions
 
-This file contains the PlantUML source code for the architectural diagrams of the HR & Payroll module.
+This document provides step-by-step instructions for drawing the architectural and behavioral diagrams for the OXVhr system. Use these guidelines to create diagrams in any modeling tool (Lucidchart, Draw.io, Visio, etc.).
 
-================================================================================
-1. ENTITY RELATIONSHIP DIAGRAM (ERD)
-================================================================================
-@startuml KSRTC_HR_Payroll_ERD
-!theme plain
-skinparam linetype ortho
+---
 
-package "Structural Masters" {
-  entity "departments" as dept {
-    * dept_id : INT <<PK>>
-    --
-    dept_code : VARCHAR
-    dept_name : VARCHAR
-    cost_center_code : VARCHAR
-  }
+## 1. Use Case Diagram
+**Goal**: Define the interactions between users and the system's core features.
 
-  entity "designations" as desig {
-    * designation_id : INT <<PK>>
-    --
-    designation_name : VARCHAR
-    grade_level : VARCHAR
-  }
+### Actors
+- **HR Administrator**: The primary power user responsible for data entry and financial processing.
+- **Department Manager**: Responsible for oversight and approvals within their specific unit.
+- **Employee**: The end-user who interacts with personal data and attendance.
 
-  entity "employee_categories" as cat {
-    * category_id : INT <<PK>>
-    --
-    category_name : VARCHAR
-  }
-}
+### Core Processes (Use Cases)
+- **Employee Management**: Registering new staff, updating personal/bank details, and managing employment status (Active/Resigned/Terminated).
+- **Financial Engine**: Configuring salary master data, executing monthly payroll runs, and generating consolidated monthly reports.
+- **Attendance & Leave**: Marking daily attendance, submitting leave requests, and approving/rejecting leave applications.
+- **Self-Service**: Viewing and downloading monthly payslips.
 
-package "Core Employee Registry" {
-  entity "employees" as emp {
-    * emp_id : INT <<PK>>
-    --
-    employee_number : VARCHAR <<UQ>>
-    first_name : VARCHAR
-    last_name : VARCHAR
-    status : ENUM
-    dept_id : INT <<FK>>
-    designation_id : INT <<FK>>
-    category_id : INT <<FK>>
-    manager_id : INT <<FK>>
-  }
+### Drawing Instructions
+1. Place the three **Actors** outside a "System Boundary" box.
+2. Inside the box, group the processes into packages: **Employee Management**, **Financial Engine**, and **Attendance/Leave**.
+3. Draw lines connecting the **HR Administrator** to all Financial and Employee Management processes.
+4. Connect the **Manager** to Leave Approvals and Reports.
+5. Connect the **Employee** to Attendance Marking, Leave Submission, and Payslip Viewing.
+6. **Relationship Note**: Link the "Execute Payroll" use case to "Attendance Logs" with an "Include" relationship, as payroll requires attendance data.
 
-  entity "employee_personal_details" as personal {
-    * emp_id : INT <<PK, FK>>
-    --
-    marital_status : ENUM
-    nationality : VARCHAR
-    national_id_number : VARCHAR
-  }
+---
 
-  entity "employee_bank_details" as bank {
-    * bank_detail_id : INT <<PK>>
-    emp_id : INT <<FK>>
-    --
-    bank_name : VARCHAR
-    account_number : VARCHAR
-    iban : VARCHAR
-  }
-}
+## 2. Sequence Diagram: Monthly Payroll Processing
+**Goal**: Illustrate the step-by-step logic of the payroll execution.
 
-package "Payroll & Attendance" {
-  entity "attendance_logs" as logs {
-    * log_id : BIGINT <<PK>>
-    emp_id : INT <<FK>>
-    --
-    log_date : DATE
-    clock_in : DATETIME
-    clock_out : DATETIME
-    status : ENUM
-  }
+### Participants (Lifelines)
+- **HR Admin** (Actor)
+- **Frontend (React)** (System Component)
+- **Backend (Express)** (System Component)
+- **Database (MySQL)** (Data Store)
 
-  entity "payroll_runs" as runs {
-    * run_id : INT <<PK>>
-    --
-    payroll_month : INT
-    payroll_year : INT
-    status : ENUM
-  }
+### Step-by-Step Interactions
+1. **Initiation**: The Admin selects the period (Month/Year) on the UI and clicks 'Process'.
+2. **Request**: The UI sends a POST request to the Backend API.
+3. **Transaction Start**: The Backend tells the Database to begin a new transaction.
+4. **Initialization**: The Backend creates a 'DRAFT' record in the Payroll Runs table.
+5. **Data Retrieval**: The Backend fetches a list of all 'ACTIVE' employees from the Database.
+6. **Processing Loop**: For every employee in the list:
+    - Backend calculates earnings (Basic + Allowances).
+    - Backend calculates deductions (Tax + PF).
+    - Backend sends a command to the Database to save a new 'Salary Slip' record.
+7. **Finalization**: After the loop, the Backend updates the Payroll Run status to 'PROCESSED' and commits the transaction.
+8. **Feedback**: The Backend sends a success response to the UI, which then displays a summary to the Admin.
 
-  entity "employee_salary_slips" as slips {
-    * slip_id : BIGINT <<PK>>
-    run_id : INT <<FK>>
-    emp_id : INT <<FK>>
-    --
-    basic_pay : DECIMAL
-    net_pay : DECIMAL
-  }
-}
+---
 
-' Relationships
-dept ||--o{ emp
-desig ||--o{ emp
-cat ||--o{ emp
-emp ||--|| personal
-emp ||--o{ bank
-emp ||--o{ logs
-emp ||--o{ slips
-runs ||--o{ slips
-emp |o--o{ emp : "manages"
-@enduml
+## 3. Activity Diagram: Payroll Business Logic
+**Goal**: Show the flow of control and decision paths during payroll calculation.
 
-================================================================================
-2. USE CASE DIAGRAM
-================================================================================
-@startuml KSRTC_HR_Payroll_UseCases
-left to right direction
-skinparam packageStyle rectangle
+### Flow Steps
+1. **Start**: Triggered by the Payroll Initiation request.
+2. **Validation**: Check if the selected month has already been processed.
+3. **Branching**:
+    - If **Invalid**: End the process with an error message.
+    - If **Valid**: Open a database transaction.
+4. **Data Preparation**: Fetch the list of active employees.
+5. **Iteration (Loop)**: For each employee:
+    - Retrieve attendance logs for the period.
+    - Calculate the daily rate and total earnings.
+    - Apply statutory deductions.
+    - Store the calculated slip.
+6. **Completion**: Once the loop finishes, update the master run status.
+7. **Commit**: Save all changes to the database.
+8. **End**: Return a success notification.
 
-actor "HR Administrator" as Admin
-actor "Department Manager" as Manager
-actor "Employee" as Emp
+---
 
-rectangle "HR & Payroll Module" {
-  (Manage Employee Lifecycle) as UC1
-  (Assign Designations & Grades) as UC2
-  (Execute Monthly Payroll) as UC3
-  (Audit Attendance Logs) as UC4
-  (Approve Leave Requests) as UC5
-  (Submit Leave Request) as UC6
-  (View Personal Payslips) as UC7
-  (Export Salary Ledgers) as UC8
-}
+## 4. Entity Relationship Diagram (ERD)
+**Goal**: Define the data structure and how tables relate to one another.
 
-Admin --> UC1
-Admin --> UC2
-Admin --> UC3
-Admin --> UC8
+### Main Entities & Key Attributes
+- **Departments**: (ID, Code, Name, Cost Center).
+- **Employees**: (ID, Number, Name, Status, Dept_ID, Designation_ID).
+- **Bank Details**: (ID, Emp_ID, Bank Name, Account Number).
+- **Payroll Runs**: (ID, Month, Year, Status).
+- **Salary Slips**: (ID, Run_ID, Emp_ID, Net Pay, Basic Pay).
 
-Manager --> UC4
-Manager --> UC5
+### Relationship Rules
+- **Department to Employee**: One-to-Many (A department has many employees).
+- **Employee to Bank Details**: One-to-One (Each employee has one primary bank record).
+- **Employee to Salary Slips**: One-to-Many (One employee gets many slips over time).
+- **Payroll Run to Salary Slips**: One-to-Many (One run generates many slips).
+- **Employee to Manager**: Self-referencing (An employee may have a Manager who is also an employee).
 
-Emp --> UC6
-Emp --> UC7
+---
 
-UC3 ..> UC4 : <<include>>
-@enduml
+## 5. Component Diagram
+**Goal**: Map the physical or logical architecture of the application.
 
-================================================================================
-3. SEQUENCE DIAGRAM: MONTHLY PAYROLL PROCESSING
-================================================================================
-@startuml KSRTC_Payroll_Sequence
-actor "HR Admin" as Admin
-participant "Frontend (React)" as UI
-participant "Backend (Express)" as API
-database "MySQL DB" as DB
+### Components
+- **Client Side**: A React SPA running in the browser.
+- **API Layer**: An Express.js server handling routing and business logic.
+- **Middleware**: Modules for security (CORS) and data parsing.
+- **Persistence**: A MySQL database instance.
 
-Admin -> UI : Select Month/Year & Click 'Process'
-UI -> API : POST /api/hr/tasks/process-payroll
-activate API
-
-API -> DB : BEGIN TRANSACTION
-activate DB
-
-API -> DB : INSERT INTO payroll_runs (Status=DRAFT)
-DB --> API : run_id
-
-API -> DB : SELECT * FROM employees WHERE status='ACTIVE'
-DB --> API : Employee List
-
-loop For Each Employee
-    API -> API : Calculate Earnings (Basic + Allowances)
-    API -> API : Calculate Deductions (PF + Tax + Fines)
-    API -> DB : INSERT INTO employee_salary_slips
-end
-
-API -> DB : UPDATE payroll_runs SET Status='PROCESSED'
-API -> DB : COMMIT
-deactivate DB
-
-API --> UI : 200 OK (Payroll Complete)
-deactivate API
-
-UI --> Admin : Display Success Message & Summary Grid
-@enduml
-
-================================================================================
-4. COMPONENT DIAGRAM
-================================================================================
-@startuml KSRTC_Component_Diagram
-node "Client Browser" {
-  component [React SPA] as UI
-}
-
-node "Application Server" {
-  component [Express.js Engine] as App
-  component [CORS / Body-Parser] as Mid
-}
-
-node "Database Server" {
-  database "MySQL (KSRTC_HR_PAYROLL)" as DB
-}
-
-UI -right-> Mid : REST API (JSON)
-Mid -right-> App
-App -down-> DB : SQL (mysql2/promise)
-
-package "Frontend Modules" {
-  [Sidebar Nav] - [MainWorkspace]
-  [MainWorkspace] ..> [EmployeeRegistry]
-  [MainWorkspace] ..> [PayrollLedger]
-}
-@enduml
-
-================================================================================
-5. UPDATED USE CASE DIAGRAM (Core Features)
-================================================================================
-@startuml KSRTC_Use_Cases_Updated
-left to right direction
-skinparam packageStyle rectangle
-skinparam actorStyle stickman
-
-actor "HR Administrator" as Admin
-actor "Dept. Manager" as Manager
-actor "Employee" as Emp
-
-rectangle "HR & Payroll System" {
-  package "Employee Management" {
-    (Register New Employee) as UC1
-    (Manage Personal & Bank Details) as UC2
-    (Update Employment Status) as UC3
-  }
-  
-  package "Attendance & Leave" {
-    (Mark Daily Attendance) as UC4
-    (Submit Leave Request) as UC5
-    (Approve/Reject Leave) as UC6
-  }
-  
-  package "Financial Engine" {
-    (Configure Salary Masters) as UC7
-    (Execute Monthly Payroll Run) as UC8
-    (View/Download Payslips) as UC9
-    (Generate Monthly Reports) as UC10
-  }
-}
-
-Admin --> UC1
-Admin --> UC2
-Admin --> UC3
-Admin --> UC7
-Admin --> UC8
-Admin --> UC10
-
-Manager --> UC6
-Manager --> UC10
-
-Emp --> UC4
-Emp --> UC5
-Emp --> UC9
-
-UC8 ..> UC4 : <<include>>
-@enduml
-
-================================================================================
-6. ACTIVITY DIAGRAM: MONTHLY PAYROLL PROCESSING
-================================================================================
-@startuml Payroll_Processing_Activity
-|HR Admin|
-start
-:Select Payroll Month & Year;
-:Initiate Payroll Processing;
-
-|System (Backend)|
-:Start Database Transaction;
-:Create 'DRAFT' Payroll Run Record;
-
-if (Record Created?) then (yes)
-  :Fetch All 'ACTIVE' Employees;
-  
-  while (For Each Employee?) is (More Employees)
-    :Calculate Earnings (Basic + Allowances);
-    :Calculate Deductions (Tax + PF + Fines);
-    :Compute Net Pay;
-    :Insert Employee Salary Slip;
-  endwhile (Complete)
-  
-  :Update Payroll Run status to 'PROCESSED';
-  :Commit Transaction;
-  |HR Admin|
-  :Display Success & Summary Grid;
-else (no)
-  |System (Backend)|
-  :Rollback Transaction;
-  |HR Admin|
-  :Display Error Message;
-endif
-
-stop
-@enduml
+### Connection Instructions
+- Draw an arrow from **React SPA** to the **Express Server** labeled "REST API / JSON".
+- Draw an arrow from the **Express Server** to the **MySQL Database** labeled "SQL Query / Connection Pool".
+- Group the internal React modules into **Views** (Registry, Ledger) and **Components** (Sidebar, Layout).
