@@ -1,0 +1,184 @@
+/* KSRTC ERP Legacy Theme - Finacle Style */
+
+:root {
+    --bg-main: #F4F4F4;
+    --bg-sidebar: #E1E1E1;
+    --border-color: #888888;
+    --header-bg: #003366; /* Classic Administrative Dark Blue */
+    --header-text: #FFFFFF;
+    --text-primary: #333333;
+    --accent-green: #115522;
+    --row-alt: #F9F9F9;
+    --font-main: 'Tahoma', 'Arial', sans-serif;
+    --font-mono: 'Courier New', monospace;
+    --font-size: 12px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border-radius: 0 !important; /* Force legacy boxy look */
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: var(--font-size);
+    overflow: hidden;
+}
+
+/* Scrollbars - Tight & Functional */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-thumb {
+    background: #AAAAAA;
+}
+::-webkit-scrollbar-track {
+    background: #EEEEEE;
+}
+
+/* Global Layout */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.top-header {
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    height: 35px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-weight: bold;
+    border-bottom: 1px solid #000;
+}
+
+.main-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Sidebar Accordion */
+.sidebar {
+    width: 220px;
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-search {
+    padding: 5px;
+}
+
+.sidebar-search input {
+    width: 100%;
+    padding: 2px 4px;
+    border: 1px solid var(--border-color);
+    font-size: 11px;
+}
+
+.nav-section {
+    border-bottom: 1px solid #CCC;
+}
+
+.nav-header {
+    background-color: #D1D1D1;
+    padding: 4px 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.nav-item {
+    padding: 3px 20px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.nav-item:hover {
+    background-color: #CCC;
+}
+
+/* Main Workspace */
+.workspace {
+    flex: 1;
+    background-color: #FFF;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+/* Legacy Data Grid */
+.data-grid {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border-color);
+}
+
+.data-grid th {
+    background-color: #E8E8E8;
+    border: 1px solid var(--border-color);
+    padding: 2px 4px;
+    text-align: left;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.data-grid td {
+    border: 1px solid var(--border-color);
+    padding: 2px 4px;
+    font-size: 12px;
+}
+
+.data-grid tr:nth-child(even) {
+    background-color: var(--row-alt);
+}
+
+.data-grid tr:hover {
+    background-color: #FFFFAA;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.form-group label {
+    width: 120px;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.form-control {
+    border: 1px solid var(--border-color);
+    padding: 2px 4px;
+    font-size: 12px;
+    background-color: #FFF;
+}
+
+.btn-legacy {
+    background-color: #EEE;
+    border: 1px solid var(--border-color);
+    padding: 2px 10px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-legacy:hover {
+    background-color: #DDD;
+}
+
+.btn-primary {
+    background-color: var(--header-bg);
+    color: white;
+}
