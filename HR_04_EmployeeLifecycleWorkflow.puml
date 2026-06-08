@@ -1,0 +1,41 @@
+@startuml HR_04_EmployeeLifecycleWorkflow
+title KSRTC - Employee Data Management & Lifecycle
+
+skinparam backgroundColor #FFFFFF
+skinparam activity {
+  BackgroundColor #E3F2FD
+  BorderColor #003399
+  ArrowColor #003399
+  StartColor #003399
+  EndColor #003399
+  DiamondBackgroundColor #FFFDE7
+  DiamondBorderColor #FBC02D
+}
+
+start
+:HR Administrator selects **Employee Registry**;
+
+if (Action Type?) then (Add New Staff)
+  :Data Input: **Official Data** (Dept, Designation, Grade);
+  :Data Input: **Personal & Emergency** (DOB, Blood Group);
+  :Data Input: **Bank Details** (A/C No, IFSC Code);
+  :Data Input: **Statutory** (PAN, PF No, ESI No);
+  :Data Input: **Education & Experience** Records;
+  :System Validates Data Integrity;
+  :Create Employee Record (Status = **ACTIVE**);
+else (Manage Existing)
+  :Search & Select Employee;
+  if (Update Type?) then (Profile Edit)
+    :Modify Specific Employee Attributes;
+    :Save Changes to Database;
+  else (Status Change)
+    :Update Employment Status
+    (e.g., ON_LEAVE, TERMINATED, RETIRED);
+    :System archives transition history;
+  endif
+endif
+
+:Database Transaction Committed;
+:UI reflects updated Employee Master Data;
+stop
+@enduml

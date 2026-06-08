@@ -1,5 +1,5 @@
 @startuml HR_02_PayrollWorkflow
-title KSRTC - Payroll Execution Process
+title KSRTC - Complex Payroll Execution Engine
 
 skinparam backgroundColor #FFFFFF
 skinparam activity {
@@ -13,24 +13,40 @@ skinparam activity {
 }
 
 start
-:HR Administrator initiates Payroll Run;
-:System validates if month/year already processed;
+:HR Administrator selects Target Month and Year;
+:System validates existing **Payroll Runs**;
 
-if (Action?) then (Already Processed)
-  :System displays **ERROR** message;
+if (Is Period Already Processed?) then (Yes)
+  :System displays **Validation Error**;
   stop
-else (New Run)
-  :System creates Payroll Run as **DRAFT**;
-  :System fetches all **ACTIVE** Employees;
+else (No)
+  :System initializes new Run (Status = **DRAFT**);
+  :Fetch all **ACTIVE** Employees from Master DB;
   
-  while (More employees?) is (yes)
-    :Calculate Pro-rated Earnings (Base, HRA);
-    :Calculate Deductions (PF, ESI);
-    :Generate Salary Slip;
-  endwhile (no)
+  while (Iterate through Employees) is (Remaining)
+    :Data Input: Fetch **Salary Grade & Base Pay**;
+    :Data Input: Fetch **Attendance Logs** (Present, Leave, LOP);
+    :Calculate Total Payable Days;
+    
+    fork
+      :Calculate Earnings:
+      - Pro-rated Base Salary
+      - HRA (House Rent Allowance)
+      - Conveyance & Medical;
+    fork again
+      :Calculate Deductions:
+      - PF (12% of Base)
+      - ESI & Professional Tax
+      - Unpaid Leave Deductions;
+    end fork
+    
+    :Calculate **Net Pay** (Earnings - Deductions);
+    :Generate **Salary Slip** Database Record;
+  endwhile (Done)
   
   :System updates Payroll Run status to **PROCESSED**;
-  :System commits transaction;
+  :System commits all transactional data;
+  :Generate **Monthly Salary Ledger**;
   :HR Administrator views **SUCCESS** Summary;
 endif
 
