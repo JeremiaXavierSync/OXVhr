@@ -1,6 +1,8 @@
-import React from 'react';
+interface SidebarProps {
+    setView: (view: string) => void;
+}
 
-const Sidebar = ({ setView }) => {
+const Sidebar = ({ setView }: SidebarProps) => {
     return (
         <div className="sidebar">
             <div className="sidebar-search">

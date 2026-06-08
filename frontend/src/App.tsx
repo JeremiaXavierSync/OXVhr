@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import EmployeeRegistry from './views/EmployeeRegistry';
 import PayrollLedger from './views/PayrollLedger';

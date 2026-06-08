@@ -1,9 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { mastersApi } from '../services/api';
+
+interface Employee {
+    emp_id: number;
+    employee_number: string;
+    first_name: string;
+    last_name: string;
+    dept_name: string;
+    designation_name: string;
+    status: string;
+}
+
+interface Department {
+    dept_id: number;
+    dept_name: string;
+}
+
+interface Designation {
+    designation_id: number;
+    designation_name: string;
+}
+
+interface Category {
+    category_id: number;
+    category_name: string;
+}
 
 const EmployeeRegistry = () => {
     const [activeTab, setActiveTab] = useState('LIST');
-    const [employees, setEmployees] = useState([]);
+    const [employees, setEmployees] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(false);
     
     // Form State
@@ -20,7 +45,11 @@ const EmployeeRegistry = () => {
     });
 
     // Masters Data
-    const [masters, setMasters] = useState({
+    const [masters, setMasters] = useState<{
+        departments: Department[];
+        designations: Designation[];
+        categories: Category[];
+    }>({
         departments: [],
         designations: [],
         categories: []
@@ -60,19 +89,19 @@ const EmployeeRegistry = () => {
         }
     };
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         try {
             await mastersApi.createEmployee(formData);
             alert('Employee created successfully!');
             setActiveTab('LIST');
             fetchEmployees();
-        } catch (err) {
-            alert('Error creating employee: ' + err.message);
+        } catch (err: any) {
+            alert('Error creating employee: ' + (err.message || 'Unknown error'));
         }
     };
 
@@ -101,7 +130,7 @@ const EmployeeRegistry = () => {
                             <td>{emp.status}</td>
                         </tr>
                     ))}
-                    {employees.length === 0 && !loading && <tr><td colSpan="5" style={{ textAlign: 'center' }}>No employees found.</td></tr>}
+                    {employees.length === 0 && !loading && <tr><td colSpan={5} style={{ textAlign: 'center' }}>No employees found.</td></tr>}
                 </tbody>
             </table>
         </div>

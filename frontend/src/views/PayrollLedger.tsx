@@ -1,10 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { reportsApi, tasksApi } from '../services/api';
+
+interface SalarySlip {
+    slip_id: number;
+    employee_number: string;
+    employee_name: string;
+    basic_pay: number;
+    hra: number;
+    transport_allowance: number;
+    net_pay: number;
+    deductions: number;
+}
 
 const PayrollLedger = () => {
     const [month, setMonth] = useState(5); // May
     const [year, setYear] = useState(2024);
-    const [ledger, setLedger] = useState([]);
+    const [ledger, setLedger] = useState<SalarySlip[]>([]);
     const [loading, setLoading] = useState(false);
 
     const fetchLedger = async () => {
@@ -26,8 +37,8 @@ const PayrollLedger = () => {
             await tasksApi.processPayroll(month, year);
             alert('Payroll processed successfully!');
             fetchLedger();
-        } catch (err) {
-            alert('Error processing payroll: ' + err.message);
+        } catch (err: any) {
+            alert('Error processing payroll: ' + (err.message || 'Unknown error'));
         }
     };
 
@@ -95,7 +106,7 @@ const PayrollLedger = () => {
                             <td style={{ fontWeight: 'bold' }}>{Number(row.net_pay).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                         </tr>
                     ))}
-                    {ledger.length === 0 && !loading && <tr><td colSpan="8" style={{ textAlign: 'center' }}>No records found for this period. Click 'RUN PAYROLL ENGINE' to process.</td></tr>}
+                    {ledger.length === 0 && !loading && <tr><td colSpan={8} style={{ textAlign: 'center' }}>No records found for this period. Click 'RUN PAYROLL ENGINE' to process.</td></tr>}
                 </tbody>
                 {ledger.length > 0 && (
                     <tfoot>
